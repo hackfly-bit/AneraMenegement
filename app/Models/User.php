@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -224,8 +225,11 @@ class User extends Authenticatable
     /**
      * Assign a role to the user.
      */
-    public function assignRole(Role $role): void
+    public function assignRole(Role|string $role): void
     {
+        if (is_string($role)) {
+            $role = \App\Models\Role::where('name', $role)->firstOrFail();
+        }
         $this->roles()->attach($role->id);
     }
 
